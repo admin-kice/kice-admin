@@ -1,107 +1,147 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KICE Admin Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KICE Admin Login</title><style>
+* {
+    box-sizing: border-box;
+}
 
-    <link rel="stylesheet" href="style.css">
-</head>
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    font-family: Arial, sans-serif;
+}
 
-<body>
+.login-container {
+    width: 90%;
+    max-width: 380px;
+    padding: 35px 25px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    text-align: center;
+}
 
-    <div class="login-container">
+.login-container h2 {
+    margin-bottom: 25px;
+    color: #1e3a8a;
+}
 
-        <h2>KICE ADMIN LOGIN</h2>
+.login-container input {
+    width: 100%;
+    padding: 13px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+}
 
-        <input
-            type="email"
-            id="email"
-            placeholder="Email"
-            autocomplete="email"
-        >
+.login-container button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 8px;
+    background: #1e3a8a;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        <input
-            type="password"
-            id="password"
-            placeholder="Password"
-            autocomplete="current-password"
-        >
+.login-container button:hover {
+    background: #172554;
+}
 
-        <button onclick="login()">LOGIN</button>
+#error {
+    color: red;
+    font-size: 14px;
+    margin-top: 12px;
+}
+</style></head><body><div class="login-container"><h2>KICE ADMIN LOGIN</h2>
 
-        <p id="error"></p>
+<input
+    type="email"
+    id="email"
+    placeholder="Email"
+    autocomplete="email"
+>
 
-    </div>
+<input
+    type="password"
+    id="password"
+    placeholder="Password"
+    autocomplete="current-password"
+>
 
+<button onclick="login()">LOGIN</button>
 
-    <script type="module">
+<p id="error"></p>
 
-        import { initializeApp }
-        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+</div><script type="module">
 
-        import {
-            getAuth,
-            signInWithEmailAndPassword
-        }
-        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCfqCLZ3GahIHPlCKOWfnwpnzy2gqDFd7E",
-            authDomain: "kiran-institute-c8099.firebaseapp.com",
-            projectId: "kiran-institute-c8099",
-            storageBucket: "kiran-institute-c8099.firebasestorage.app",
-            messagingSenderId: "286686641576",
-            appId: "1:286686641576:web:48e785615a69661b14b19d",
-            measurementId: "G-NHKT9SRNC6"
-        };
-
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+import {
+    getAuth,
+    signInWithEmailAndPassword
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 
-        // Login Function
-        window.login = async function () {
+const firebaseConfig = {
+    apiKey: "AIzaSyCfqCLZ3GahIHPlCKOWfnwpnzy2gqDFd7E",
+    authDomain: "kiran-institute-c8099.firebaseapp.com",
+    projectId: "kiran-institute-c8099",
+    storageBucket: "kiran-institute-c8099.firebasestorage.app",
+    messagingSenderId: "286686641576",
+    appId: "1:286686641576:web:48e785615a69661b14b19d",
+    measurementId: "G-NHKT9SRNC6"
+};
 
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value;
-            const errorBox = document.getElementById("error");
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-            errorBox.innerText = "";
+window.login = async function () {
 
-            if (!email || !password) {
-                errorBox.innerText = "Please enter email and password.";
-                return;
-            }
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const errorBox = document.getElementById("error");
 
-            try {
+    errorBox.innerText = "";
 
-                const userCredential =
-                    await signInWithEmailAndPassword(
-                        auth,
-                        email,
-                        password
-                    );
+    if (!email || !password) {
+        errorBox.innerText = "Please enter email and password.";
+        return;
+    }
 
-                console.log("Login successful:", userCredential.user);
+    try {
 
-                // Login successful
-                window.location.href = "dashboard.html";
+        const userCredential =
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
 
-            } catch (error) {
+        console.log("Login successful:", userCredential.user);
 
-                console.error(error);
+        window.location.href = "dashboard.html";
 
-                errorBox.innerText =
-                    "Login failed: " + error.code;
-            }
-        };
+    } catch (error) {
 
-    </script>
+        console.error(error);
 
-</body>
+        errorBox.innerText =
+            "Login failed: " + error.code;
+    }
+};
+
+</script></body>
 </html>
