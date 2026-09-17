@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KICE Admin Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+}
+
+.header {
+    background: #1e3a8a;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    padding: 30px;
+    text-align: center;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    max-width: 500px;
+    margin: auto;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    background: #dc2626;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>KICE ADMIN PANEL</h1>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>Welcome to KICE Admin</h2>
+        <p>Login successful.</p>
+
+        <button onclick="logout()">LOGOUT</button>
+    </div>
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+    getAuth,
+    signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCfqCLZ3GahIHPlCKOWfnwpnzy2gQDFd7E",
+    authDomain: "kiran-institute-c8099.firebaseapp.com",
+    projectId: "kiran-institute-c8099",
+    storageBucket: "kiran-institute-c8099.firebasestorage.app",
+    messagingSenderId: "286686641576",
+    appId: "1:286686641576:web:48e785615a69661b14b19d",
+    measurementId: "G-NHKT9SRNC6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.logout = async function() {
+    await signOut(auth);
+    window.location.href = "index.html";
+};
+
+</script>
+
+</body>
+</html>
