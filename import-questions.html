@@ -1,350 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KICE Question Import</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KICE Question Import</title>
 
-<style>
-body{
-    font-family:Arial,sans-serif;
-    background:#f4f6f8;
-    margin:0;
-    padding:20px;
-}
-.container{
-    max-width:700px;
-    margin:auto;
-    background:white;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 3px 15px rgba(0,0,0,.12);
-}
-h1{
-    text-align:center;
-    color:#222;
-}
-button{
-    width:100%;
-    padding:14px;
-    border:0;
-    border-radius:8px;
-    background:#1565c0;
-    color:white;
-    font-size:17px;
-    font-weight:bold;
-    cursor:pointer;
-}
-button:disabled{
-    background:#999;
-}
-#status{
-    margin-top:20px;
-    padding:15px;
-    border-radius:8px;
-    background:#f1f1f1;
-    white-space:pre-line;
-}
-</style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .box {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 95%;
+      padding: 13px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #1976d2;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #999;
+    }
+
+    #status {
+      margin-top: 18px;
+      font-weight: bold;
+      line-height: 1.6;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
-    <h1> KICE Question Import </h1>
+<div class="box">
 
-    <p>
-        এই button চাপলে ২০টি প্রশ্ন Firebase-এর
-        <b>questions_public</b> collection-এ একসাথে save হবে।
-    </p>
+  <h2>KICE Question Import</h2>
 
-    <button id="importBtn">IMPORT 20 QUESTIONS</button>
+  <p>
+    Login করে ২০টি প্রশ্ন Firebase-এর
+    <b>questions_public</b> collection-এ save করুন।
+  </p>
 
-    <div id="status">Ready...</div>
+  <input
+    type="email"
+    id="email"
+    placeholder="Admin Email"
+    value="ajdasaj2000@gmail.com"
+  >
+
+  <input
+    type="password"
+    id="password"
+    placeholder="Admin Password"
+  >
+
+  <button id="importBtn">
+    IMPORT 20 QUESTIONS
+  </button>
+
+  <div id="status"></div>
+
 </div>
+
 
 <script type="module">
 
-import { initializeApp } from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import {
+  import {
     getAuth,
     signInWithEmailAndPassword
-} from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  } from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-import {
+  import {
     getFirestore,
     doc,
     setDoc
-} from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  } from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-/* =========================
-   FIREBASE CONFIG
-========================= */
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCfqCLZ3GahIHCKOWfnwpnzy2gQDFd7E",
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCfqCLZ3GahIHPlCKOWfnwpnzy2gQDFd7E",
     authDomain: "kiran-institute-c8099.firebaseapp.com",
     projectId: "kiran-institute-c8099",
     storageBucket: "kiran-institute-c8099.firebasestorage.app",
     messagingSenderId: "286686641576",
     appId: "1:286686641576:web:48e785615a69661b14b19d",
     measurementId: "G-NHKT9SRNC6"
-};
+  };
 
 
-/* =========================
-   INITIALIZE
-========================= */
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
 
-/* =========================
-   ADMIN LOGIN
-========================= */
+  const questions = [
 
-const ADMIN_EMAIL = "ajdasaj2000@gmail.com";
+    {
+      question: "The HCF of two numbers is 18 and their LCM is 540. If one number is 90, what is the other number?",
+      options: ["96", "108", "120", "126"],
+      correctAnswer: 1
+    },
 
+    {
+      question: "A train 240 m long crosses a pole in 12 seconds. What is its speed?",
+      options: ["60 km/h", "66 km/h", "72 km/h", "80 km/h"],
+      correctAnswer: 2
+    },
 
-/*
-   IMPORTANT:
-   নিচের password-এ আপনার Firebase
-   Admin account-এর password বসাবেন।
-*/
+    {
+      question: "Which Article of the Indian Constitution guarantees equality before law and equal protection of laws?",
+      options: ["Article 12", "Article 14", "Article 16", "Article 19"],
+      correctAnswer: 1
+    },
 
-const ADMIN_PASSWORD = "YOUR_ADMIN_PASSWORD";
+    {
+      question: "The Battle of Plassey was fought in which year?",
+      options: ["1756", "1757", "1764", "1772"],
+      correctAnswer: 1
+    },
 
+    {
+      question: "If A:B = 3:5 and B:C = 10:7, then A:C is:",
+      options: ["3:7", "6:7", "7:6", "5:7"],
+      correctAnswer: 1
+    },
 
-/* =========================
-   20 QUESTIONS
-========================= */
+    {
+      question: "Which river is known as the 'Sorrow of Bihar'?",
+      options: ["Ganga", "Kosi", "Son", "Gandak"],
+      correctAnswer: 1
+    },
 
-const questions = [
-
-{
-    question:"If the HCF of two numbers is 18 and their LCM is 540, and one number is 90, what is the other number?",
-    options:["96","108","120","126"],
-    correctAnswer:1
-},
-
-{
-    question:"A train 240 m long crosses a pole in 12 seconds. What is its speed?",
-    options:["60 km/h","66 km/h","72 km/h","80 km/h"],
-    correctAnswer:2
-},
-
-{
-    question:"Which Article of the Indian Constitution guarantees equality before law and equal protection of laws?",
-    options:["Article 12","Article 14","Article 16","Article 19"],
-    correctAnswer:1
-},
-
-{
-    question:"The Battle of Plassey was fought in which year?",
-    options:["1756","1757","1764","1772"],
-    correctAnswer:1
-},
-
-{
-    question:"If A:B = 3:5 and B:C = 10:7, then A:C is:",
-    options:["3:7","6:7","7:6","5:7"],
-    correctAnswer:1
-},
-
-{
-    question:"Which river is known as the 'Sorrow of Bihar'?",
-    options:["Ganga","Kosi","Son","Gandak"],
-    correctAnswer:1
-},
-
-{
-    question:"The 73rd Constitutional Amendment is mainly related to:",
-    options:[
+    {
+      question: "The 73rd Constitutional Amendment is related to:",
+      options: [
         "Municipalities",
         "Panchayati Raj",
         "Fundamental Duties",
         "Emergency Provisions"
-    ],
-    correctAnswer:1
-},
+      ],
+      correctAnswer: 1
+    },
 
-{
-    question:"At 5% simple interest per annum for 4 years, the amount becomes ₹8,820. What is the principal?",
-    options:["₹7,000","₹7,200","₹7,350","₹7,500"],
-    correctAnswer:2
-},
+    {
+      question: "A sum amounts to ₹8820 in 4 years at 5% simple interest per annum. What is the principal?",
+      options: ["₹7000", "₹7200", "₹7350", "₹7500"],
+      correctAnswer: 2
+    },
 
-{
-    question:"Which part of the brain is mainly responsible for balance and coordination of muscular activity?",
-    options:["Cerebrum","Medulla","Cerebellum","Hypothalamus"],
-    correctAnswer:2
-},
+    {
+      question: "Which part of the human brain is mainly responsible for maintaining balance and coordination?",
+      options: ["Cerebrum", "Medulla", "Cerebellum", "Hypothalamus"],
+      correctAnswer: 2
+    },
 
-{
-    question:"Who founded the Maurya Empire?",
-    options:[
+    {
+      question: "Who founded the Maurya Empire?",
+      options: [
         "Ashoka",
         "Bindusara",
         "Chandragupta Maurya",
         "Bimbisara"
-    ],
-    correctAnswer:2
-},
+      ],
+      correctAnswer: 2
+    },
 
-{
-    question:"40% of a number exceeds 25% of the same number by 90. What is the number?",
-    options:["500","600","700","800"],
-    correctAnswer:1
-},
+    {
+      question: "40% of a number exceeds 25% of it by 90. What is the number?",
+      options: ["500", "600", "700", "800"],
+      correctAnswer: 1
+    },
 
-{
-    question:"Which of the following is a greenhouse gas?",
-    options:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],
-    correctAnswer:2
-},
+    {
+      question: "Which of the following is a major greenhouse gas?",
+      options: ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"],
+      correctAnswer: 2
+    },
 
-{
-    question:"What is the maximum constitutional strength of the Rajya Sabha?",
-    options:["238","245","250","252"],
-    correctAnswer:2
-},
+    {
+      question: "What is the maximum possible strength of the Rajya Sabha according to the Constitution?",
+      options: ["238", "245", "250", "252"],
+      correctAnswer: 2
+    },
 
-{
-    question:"An article is marked 40% above its cost price and sold at a discount of 10% on the marked price. What is the profit percentage?",
-    options:["24%","26%","28%","30%"],
-    correctAnswer:1
-},
+    {
+      question: "An article is marked 40% above its cost price and sold at a discount of 10%. What is the profit percentage?",
+      options: ["24%", "26%", "28%", "30%"],
+      correctAnswer: 1
+    },
 
-{
-    question:"Which is the largest gland in the human body?",
-    options:["Pancreas","Thyroid","Liver","Pituitary"],
-    correctAnswer:2
-},
+    {
+      question: "Which is the largest gland in the human body?",
+      options: ["Pancreas", "Thyroid", "Liver", "Pituitary"],
+      correctAnswer: 2
+    },
 
-{
-    question:"The Permanent Settlement in Bengal was introduced in:",
-    options:["1765","1773","1793","1813"],
-    correctAnswer:2
-},
+    {
+      question: "The Permanent Settlement was introduced in Bengal in which year?",
+      options: ["1765", "1773", "1793", "1813"],
+      correctAnswer: 2
+    },
 
-{
-    question:"The average of 8 numbers is 24. If one number is removed, the average of the remaining 7 numbers becomes 22. What was the removed number?",
-    options:["36","38","40","42"],
-    correctAnswer:1
-},
+    {
+      question: "The average of 8 numbers is 24. If one number is removed, the average becomes 22. What was the removed number?",
+      options: ["36", "38", "40", "42"],
+      correctAnswer: 1
+    },
 
-{
-    question:"Which Fundamental Right was removed from the list of Fundamental Rights by the 44th Constitutional Amendment?",
-    options:[
+    {
+      question: "Which Fundamental Right was removed from the list of Fundamental Rights by the 44th Constitutional Amendment?",
+      options: [
         "Right to Equality",
         "Right to Property",
         "Right to Freedom",
         "Right against Exploitation"
-    ],
-    correctAnswer:1
-},
+      ],
+      correctAnswer: 1
+    },
 
-{
-    question:"A can complete a work in 15 days and B can complete it in 20 days. Working together, they will complete the work in:",
-    options:["7.5 days","8 4/7 days","9 days","10 days"],
-    correctAnswer:1
-},
+    {
+      question: "A can complete a work in 15 days and B in 20 days. Working together, they can complete the work in:",
+      options: [
+        "7.5 days",
+        "8 4/7 days",
+        "9 days",
+        "10 days"
+      ],
+      correctAnswer: 1
+    },
 
-{
-    question:"Which Indian state has the longest coastline?",
-    options:[
-        "Maharashtra",
-        "Tamil Nadu",
-        "Gujarat",
-        "Andhra Pradesh"
-    ],
-    correctAnswer:2
-}
+    {
+      question: "Which Indian state has the longest coastline?",
+      options: ["Maharashtra", "Tamil Nadu", "Gujarat", "Andhra Pradesh"],
+      correctAnswer: 2
+    }
 
-];
+  ];
 
 
-/* =========================
-   IMPORT FUNCTION
-========================= */
+  const importBtn = document.getElementById("importBtn");
+  const status = document.getElementById("status");
 
-document.getElementById("importBtn").addEventListener("click", async () => {
 
-    const button = document.getElementById("importBtn");
-    const status = document.getElementById("status");
+  importBtn.addEventListener("click", async () => {
 
-    button.disabled = true;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!email || !password) {
+      status.innerHTML = "❌ Email এবং Password দিন।";
+      return;
+    }
+
+    importBtn.disabled = true;
+    status.innerHTML = "🔐 Admin login হচ্ছে...";
 
     try {
 
-        status.textContent = "Admin login হচ্ছে...";
-
-        /*
-           Firebase Admin login
-        */
-
+      const userCredential =
         await signInWithEmailAndPassword(
-            auth,
-            ADMIN_EMAIL,
-            ADMIN_PASSWORD
+          auth,
+          email,
+          password
         );
 
-        status.textContent = "Login successful.\n২০টি প্রশ্ন Firebase-এ save হচ্ছে...";
+      const user = userCredential.user;
 
-        /*
-           question1 → question20
-        */
+      if (user.uid !== "r1K7CchediaZ54JHZE3gPHBtVPo1") {
+        throw new Error("এই account Admin নয়।");
+      }
 
-        for(let i = 0; i < questions.length; i++){
+      status.innerHTML = "✅ Admin Login সফল।<br>📥 Questions save হচ্ছে...";
 
-            const questionId = "question" + (i + 1);
 
-            await setDoc(
-                doc(db, "questions_public", questionId),
-                {
-                    question: questions[i].question,
-                    options: questions[i].options,
-                    correctAnswer: questions[i].correctAnswer,
-                    published: true,
-                    testId: "KICE_TEST_01",
-                    questionNumber: i + 1
-                }
-            );
+      for (let i = 0; i < questions.length; i++) {
 
-            status.textContent =
-                "Importing...\n" +
-                (i + 1) +
-                " / " +
-                questions.length +
-                " questions completed";
-        }
+        const q = questions[i];
 
-        status.textContent =
-            "✅ SUCCESS!\n\n" +
-            "২০টি প্রশ্ন সফলভাবে Firebase-এ save হয়েছে।\n\n" +
-            "Collection: questions_public\n" +
-            "Test ID: KICE_TEST_01";
+        await setDoc(
+          doc(db, "questions_public", "question" + (i + 1)),
+          {
+            question: q.question,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            published: true,
+            testId: "KICE_TEST_01",
+            questionNumber: i + 1
+          }
+        );
 
-    } catch(error){
+        status.innerHTML =
+          "📥 Saving... " +
+          (i + 1) +
+          " / 20";
+      }
 
-        console.error(error);
 
-        status.textContent =
-            "❌ ERROR\n\n" +
-            error.message +
-            "\n\nPassword ঠিক আছে কিনা এবং Firebase Rules check করুন।";
+      status.innerHTML =
+        "🎉 SUCCESS!<br>" +
+        "✅ ২০টি প্রশ্ন Firebase-এ save হয়েছে।";
 
-        button.disabled = false;
+
+    } catch (error) {
+
+      console.error(error);
+
+      status.innerHTML =
+        "❌ ERROR<br>" +
+        error.message;
+
+      importBtn.disabled = false;
     }
 
-});
+  });
 
 </script>
 
