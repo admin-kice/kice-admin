@@ -3,44 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KICE Admin Dashboard</title>
+
+<title>KICE Admin Panel</title>
 
 <style>
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f1f5f9;
 }
 
+/* Header */
 .header {
     background: #1e3a8a;
     color: white;
-    padding: 20px;
+    padding: 18px;
     text-align: center;
 }
 
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+/* Container */
 .container {
-    padding: 30px;
+    padding: 20px;
+    max-width: 1000px;
+    margin: auto;
+}
+
+/* Welcome */
+.welcome {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.welcome h2 {
+    margin-top: 0;
+    color: #1e3a8a;
+}
+
+/* Menu Grid */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+/* Menu Card */
+.menu-card {
+    background: white;
+    padding: 25px 15px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.menu-card:hover {
+    transform: translateY(-3px);
+}
+
+.menu-card h3 {
+    margin: 10px 0 5px;
+    color: #1e3a8a;
+}
+
+.menu-card p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Logout */
+.logout {
+    margin-top: 25px;
     text-align: center;
 }
 
-.card {
-    background: white;
-    padding: 30px;
-    max-width: 500px;
-    margin: auto;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-}
-
-button {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 8px;
+.logout button {
     background: #dc2626;
     color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
+}
+
+/* Mobile */
+@media (max-width: 500px) {
+
+    .header h1 {
+        font-size: 20px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
 }
 </style>
 </head>
@@ -52,12 +122,68 @@ button {
 </div>
 
 <div class="container">
-    <div class="card">
-        <h2>Welcome to KICE Admin</h2>
-        <p>Login successful.</p>
 
+    <div class="welcome">
+        <h2>Welcome to KICE Admin</h2>
+        <p>Manage your institute from this dashboard.</p>
+    </div>
+
+    <div class="menu-grid">
+
+        <div class="menu-card">
+            <div>👨‍🎓</div>
+            <h3>Students</h3>
+            <p>Manage Students</p>
+        </div>
+
+        <div class="menu-card">
+            <div>📝</div>
+            <h3>Admissions</h3>
+            <p>Manage Admissions</p>
+        </div>
+
+        <div class="menu-card">
+            <div>📚</div>
+            <h3>Batches</h3>
+            <p>Manage Batches</p>
+        </div>
+
+        <div class="menu-card">
+            <div>💰</div>
+            <h3>Fees</h3>
+            <p>Manage Fees</p>
+        </div>
+
+        <div class="menu-card">
+            <div>📰</div>
+            <h3>Notices</h3>
+            <p>Manage Notices</p>
+        </div>
+
+        <div class="menu-card">
+            <div>📖</div>
+            <h3>Mock Tests</h3>
+            <p>Manage Mock Tests</p>
+        </div>
+
+        <div class="menu-card">
+            <div>📅</div>
+            <h3>Current Affairs</h3>
+            <p>Manage Current Affairs</p>
+        </div>
+
+        <div class="menu-card">
+            <div>⚙️</div>
+            <h3>Settings</h3>
+            <p>Admin Settings</p>
+        </div>
+
+    </div>
+
+    <div class="logout">
         <button onclick="logout()">LOGOUT</button>
     </div>
+
 </div>
 
 <script type="module">
@@ -71,6 +197,7 @@ import {
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+
 const firebaseConfig = {
     apiKey: "AIzaSyCfqCLZ3GahIHPlCKOWfnwpnzy2gQDFd7E",
     authDomain: "kiran-institute-c8099.firebaseapp.com",
@@ -82,11 +209,15 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
 
 window.logout = async function() {
+
     await signOut(auth);
+
     window.location.href = "index.html";
+
 };
 
 </script>
