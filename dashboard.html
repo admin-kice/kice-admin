@@ -1,69 +1,331 @@
-rules_version = '2';
+  <!DOCTYPE html>         <html lang="en">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <title>KICE Admin Dashboard</title>    <style>  
+    body {  
+      margin: 0;  
+      font-family: Arial, sans-serif;  
+      background: #f4f6f9;  
+    }  
+  
+    header {  
+      background: #1e3a8a;  
+      color: white;  
+      padding: 18px;  
+      text-align: center;  
+    }  
+  
+    .container {  
+      max-width: 1000px;  
+      margin: 20px auto;  
+      padding: 15px;  
+    }  
+  
+    .card {  
+      background: white;  
+      padding: 20px;  
+      margin-bottom: 20px;  
+      border-radius: 12px;  
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);  
+    }  
+  
+    input, select {  
+      width: 100%;  
+      padding: 11px;  
+      margin: 7px 0 12px;  
+      box-sizing: border-box;  
+      border: 1px solid #ccc;  
+      border-radius: 7px;  
+    }  
+  
+    button {  
+      padding: 11px 18px;  
+      border: none;  
+      border-radius: 7px;  
+      cursor: pointer;  
+      font-weight: bold;  
+    }  
+  
+    .save-btn {  
+      background: #16a34a;  
+      color: white;  
+    }  
+  
+    .delete-btn {  
+      background: #dc2626;  
+      color: white;  
+      padding: 7px 12px;  
+    }  
+  
+    .logout-btn {  
+      background: #dc2626;  
+      color: white;  
+      margin-top: 10px;  
+    }  
+  
+    table {  
+      width: 100%;  
+      border-collapse: collapse;  
+      margin-top: 15px;  
+    }  
+  
+    th, td {  
+      border: 1px solid #ddd;  
+      padding: 9px;  
+      text-align: left;  
+    }  
+  
+    th {  
+      background: #1e3a8a;  
+      color: white;  
+    }  
+  
+    @media(max-width:700px) {  
+      table {  
+        font-size: 12px;  
+      }  
+  
+      th, td {  
+        padding: 6px;  
+      }  
+    }  
+  </style>  </head>  <body>  <header>  
+  <h1>Welcome to KICE Admin</h1>  
+  <p>Student Management Dashboard</p>  
+  <button class="logout-btn" id="logoutBtn">LOGOUT</button>  
+</header>  <div class="container">    <div class="card">  
+    <h2>👨‍🎓 Add Student</h2>  <input type="text" id="studentName" placeholder="Student Name">  
 
-service cloud.firestore {
-  match /databases/{database}/documents {
+<input type="text" id="studentMobile" placeholder="Mobile Number">  
 
-    // =========================
-    // ADMIN
-    // =========================
+<input type="email" id="studentEmail" placeholder="Email">  
 
-    function isAdmin() {
-      return request.auth != null
-        && request.auth.uid == "r1K7CchediaZ54JHZE3gPHBtVPo1";
-    }
+<input type="text" id="studentBatch" placeholder="Batch">  
 
-    // CBT Sets
-    match /cbt_sets/{setId} {
-      allow read, write: if isAdmin();
-    }
+<select id="studentMedium">  
+  <option value="">Select Medium</option>  
+  <option value="Bengali">Bengali</option>  
+  <option value="English">English</option>  
+</select>  
 
-    // Public Questions
-    match /questions_public/{questionId} {
-      allow read: if resource.data.published == true || isAdmin();
-      allow write: if isAdmin();
-    }
+<input type="date" id="admissionDate">  
 
-    // Answer Keys - Admin Only
-    match /answer_keys/{answerId} {
-      allow read, write: if isAdmin();
-    }
+<button class="save-btn" id="addStudentBtn">  
+  ADD STUDENT  
+</button>
 
-    // Student Results
-    match /results/{resultId} {
+  </div>    <div class="card">  
+    <h2>📋 Student List</h2>  <table>  
+  <thead>  
+    <tr>  
+      <th>Name</th>  
+      <th>Mobile</th>  
+      <th>Email</th>  
+      <th>Batch</th>  
+      <th>Medium</th>  
+      <th>Admission Date</th>  
+      <th>Action</th>  
+    </tr>  
+  </thead>  
 
-      // Students can submit results
-      allow create: if
-        request.resource.data.keys().hasAll([
-          "studentName",
-          "roll",
-          "testId",
-          "score",
-          "correct",
-          "wrong",
-          "unattempted",
-          "submittedAt"
-        ])
-        && request.resource.data.studentName is string
-        && request.resource.data.roll is string
-        && request.resource.data.testId is string
-        && request.resource.data.score is number
-        && request.resource.data.correct is int
-        && request.resource.data.wrong is int
-        && request.resource.data.unattempted is int
-        && request.resource.data.submittedAt is timestamp;
+  <tbody id="studentList">  
+  </tbody>  
+</table>
 
-      // Only Admin can manage results
-      allow read, update, delete: if isAdmin();
-    }
-
-    // Student Management - Admin Only
-    match /students/{studentId} {
-      allow read, write: if isAdmin();
-    }
-
-    // Everything Else Blocked
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
+  </div>  </div>  <script type="module">  
+  
+import { initializeApp } from  
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";  
+  
+import {  
+  getAuth,  
+  onAuthStateChanged,  
+  signOut  
+} from  
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";  
+  
+import {  
+  getFirestore,  
+  collection,  
+  addDoc,  
+  getDocs,  
+  deleteDoc,  
+  doc,  
+  serverTimestamp  
+} from  
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";  
+  
+  
+const firebaseConfig = {  
+  apiKey: "AIzaSyCfqCLZ3GahIHPlCKOWfnwpnzy2gQDFd7E",  
+  authDomain: "kiran-institute-c8099.firebaseapp.com",  
+  projectId: "kiran-institute-c8099",  
+  storageBucket: "kiran-institute-c8099.firebasestorage.app",  
+  messagingSenderId: "286686641576",  
+  appId: "1:286686641576:web:48e785615a69661b14b19d",  
+  measurementId: "G-NHKT9SRNC6"  
+};  
+  
+const app = initializeApp(firebaseConfig);  
+const auth = getAuth(app);  
+const db = getFirestore(app);  
+  
+  
+// CHECK ADMIN LOGIN  
+onAuthStateChanged(auth, (user) => {  
+  
+  if (!user) {  
+    window.location.href = "index.html";  
+    return;  
+  }  
+  
+  loadStudents();  
+});  
+  
+  
+// ADD STUDENT  
+document.getElementById("addStudentBtn").addEventListener("click", async () => {  
+  
+  const name = document.getElementById("studentName").value.trim();  
+  const mobile = document.getElementById("studentMobile").value.trim();  
+  const email = document.getElementById("studentEmail").value.trim();  
+  const batch = document.getElementById("studentBatch").value.trim();  
+  const medium = document.getElementById("studentMedium").value;  
+  const admissionDate = document.getElementById("admissionDate").value;  
+  
+  if (!name || !mobile || !batch || !medium || !admissionDate) {  
+    alert("Please fill all required fields.");  
+    return;  
+  }  
+  
+  try {  
+  
+    await addDoc(collection(db, "students"), {  
+  
+      name: name,  
+      mobile: mobile,  
+      email: email,  
+      batch: batch,  
+      medium: medium,  
+      admissionDate: admissionDate,  
+      createdAt: serverTimestamp()  
+  
+    });  
+  
+    alert("Student added successfully!");  
+  
+    document.getElementById("studentName").value = "";  
+    document.getElementById("studentMobile").value = "";  
+    document.getElementById("studentEmail").value = "";  
+    document.getElementById("studentBatch").value = "";  
+    document.getElementById("studentMedium").value = "";  
+    document.getElementById("admissionDate").value = "";  
+  
+    loadStudents();  
+  
+  } catch (error) {  
+  
+    console.error(error);  
+    alert("Error: " + error.message);  
+  
+  }  
+  
+});  
+  
+  
+// LOAD STUDENTS  
+async function loadStudents() {  
+  
+  const list = document.getElementById("studentList");  
+  
+  list.innerHTML = "<tr><td colspan='7'>Loading...</td></tr>";  
+  
+  try {  
+  
+    const snapshot = await getDocs(collection(db, "students"));  
+  
+    list.innerHTML = "";  
+  
+    if (snapshot.empty) {  
+  
+      list.innerHTML =  
+        "<tr><td colspan='7'>No students found.</td></tr>";  
+  
+      return;  
+    }  
+  
+    snapshot.forEach((student) => {  
+  
+      const data = student.data();  
+  
+      const row = document.createElement("tr");  
+  
+      row.innerHTML = `  
+        <td>${data.name || ""}</td>  
+        <td>${data.mobile || ""}</td>  
+        <td>${data.email || ""}</td>  
+        <td>${data.batch || ""}</td>  
+        <td>${data.medium || ""}</td>  
+        <td>${data.admissionDate || ""}</td>  
+        <td>  
+          <button class="delete-btn"  
+            onclick="deleteStudent('${student.id}')">  
+            Delete  
+          </button>  
+        </td>  
+      `;  
+  
+      list.appendChild(row);  
+  
+    });  
+  
+  } catch (error) {  
+  
+    console.error(error);  
+  
+    list.innerHTML =  
+      "<tr><td colspan='7'>Error loading students.</td></tr>";  
+  
+  }  
+  
+}  
+  
+  
+// DELETE STUDENT  
+window.deleteStudent = async function(studentId) {  
+  
+  const confirmDelete =  
+    confirm("Are you sure you want to delete this student?");  
+  
+  if (!confirmDelete) return;  
+  
+  try {  
+  
+    await deleteDoc(doc(db, "students", studentId));  
+  
+    alert("Student deleted successfully!");  
+  
+    loadStudents();  
+  
+  } catch (error) {  
+  
+    console.error(error);  
+    alert("Error: " + error.message);  
+  
+  }  
+  
+};  
+  
+  
+// LOGOUT  
+document.getElementById("logoutBtn").addEventListener("click", async () => {  
+  
+  await signOut(auth);  
+  
+  window.location.href = "index.html";  
+  
+});  
+  
+</script>  </body>  
+  </html>
