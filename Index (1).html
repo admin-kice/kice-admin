@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KICE Admin Login</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <h2>KICE ADMIN LOGIN</h2>
+
+        <input
+            type="email"
+            id="email"
+            placeholder="Email"
+            autocomplete="email"
+        >
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            autocomplete="current-password"
+        >
+
+        <button onclick="login()">LOGIN</button>
+
+        <p id="error"></p>
+
+    </div>
+
+
+    <script type="module">
+
+        import { initializeApp }
+        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+        import {
+            getAuth,
+            signInWithEmailAndPassword
+        }
+        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCfqCLZ3GahIHPlCKOWfnwpnzy2gqDFd7E",
+            authDomain: "kiran-institute-c8099.firebaseapp.com",
+            projectId: "kiran-institute-c8099",
+            storageBucket: "kiran-institute-c8099.firebasestorage.app",
+            messagingSenderId: "286686641576",
+            appId: "1:286686641576:web:48e785615a69661b14b19d",
+            measurementId: "G-NHKT9SRNC6"
+        };
+
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+
+        // Login Function
+        window.login = async function () {
+
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const errorBox = document.getElementById("error");
+
+            errorBox.innerText = "";
+
+            if (!email || !password) {
+                errorBox.innerText = "Please enter email and password.";
+                return;
+            }
+
+            try {
+
+                const userCredential =
+                    await signInWithEmailAndPassword(
+                        auth,
+                        email,
+                        password
+                    );
+
+                console.log("Login successful:", userCredential.user);
+
+                // Login successful
+                window.location.href = "dashboard.html";
+
+            } catch (error) {
+
+                console.error(error);
+
+                errorBox.innerText =
+                    "Login failed: " + error.code;
+            }
+        };
+
+    </script>
+
+</body>
+</html>
